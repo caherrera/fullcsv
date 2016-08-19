@@ -11,16 +11,17 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Carlos Herrera"
+      "name": "Carlos Herrera",
+      "email" : "carlos@itline.cl"
     }
   ],
   "require": {
     "php": ">=5.6"
   },
   "autoload": {
-    "classmap": [
-      "."
-    ]
+    "psr-4": {
+      "FullCsv\\": "src/FullCsv"
+    }
   },
   "require-dev": {
     "phpunit/phpunit": "^4.6"
