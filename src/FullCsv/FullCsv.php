@@ -18,6 +18,13 @@
 class FullCsv
 {
 
+    CONST
+        DEFAULT_LENGTH    = null,
+        DEFAULT_DELIMITER = ',',
+        DEFAULT_ENCLOSURE = '"',
+        DEFAULT_ESCAPE    = "\\",
+        DEFAULT_HEADER    = true;
+
     /**
      * File pointer to a file successfully opened
      * @var
@@ -78,8 +85,18 @@ class FullCsv
      * @param string $escape
      * @param bool $firstColumnIsHeader
      */
-    function __construct($filename, $length=null, $delimiter = ',', $enclosure = '"',$escape="\\",$firstColumnIsHeader = true)
+    function __construct($filename, $length=null, $delimiter = self::DEFAULT_DELIMITER, $enclosure = self::DEFAULT_ENCLOSURE,$escape=self::DEFAULT_ESCAPE,$firstColumnIsHeader = self::DEFAULT_HEADER)
     {
+
+        if (is_array($length)) { extract(array_merge(
+            array(
+            'length'             =>self::DEFAULT_LENGTH,
+            'delimiter'          =>self::DEFAULT_DELIMITER,
+            'enclosure'          =>self::DEFAULT_ENCLOSURE,
+            'escape'             =>self::DEFAULT_ESCAPE,
+            'firstColumnIsHeader'=>self::DEFAULT_HEADER,
+            ),$length
+        )); }
 
         $this->length              = $length;
         $this->filename            = $filename;
