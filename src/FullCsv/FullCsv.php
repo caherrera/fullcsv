@@ -13,6 +13,8 @@
  * @link http://us2.php.net/manual/en/function.fgetcsv.php
  * @link http://us2.php.net/manual/en/function.fclose.php
  */
+
+
 class FullCsv
 {
 
@@ -20,7 +22,7 @@ class FullCsv
      * File pointer to a file successfully opened
      * @var
      */
-    var $fp;
+    var $fp = false;
 
     /**
      * The optional delimiter parameter sets the field delimiter (one character only).
@@ -42,13 +44,30 @@ class FullCsv
 
     var $count = 0;
 
+    /**
+     * Determinate if this CSV must take first row like columns name
+     * @var bool
+     */
     var $firstColumnIsHeader = true;
+
+    /**
+     * Name of the columns;
+     * @var array
+     */
+    var $columns = array();
 
     /**
      * File location
      * @var
      */
     var $filename;
+
+
+    /**
+     * Content or a small proportion of the data contained in this csv file
+     * @var array
+     */
+    var $data = array();
 
     /**
      * Csv constructor.
@@ -77,18 +96,23 @@ class FullCsv
      * @return boolean
      * @throws Exception
      */
-    function open($mode = 'a')
+    function open($mode = 'r')
     {
+        if ($this->fp) {return true;}
         if (!is_file($this->filename))     {throw new Exception('File does not exists');}
         if (!is_readable($this->filename)) {throw new Exception('File cannot be accessed');}
         $this->longestLine();
         $this->count();
-        if ($this->fp = fopen($this->filename, $mode)) {
+        if (($this->fp = fopen($this->filename, $mode))!== FALSE) {
             return true;
         }else{
             throw new Exception('File cannot be open');
             return false;
         }
+    }
+
+    function isOpen() {
+        return $this->fp!==false;
     }
 
     /**
@@ -97,17 +121,35 @@ class FullCsv
      * @throws Exception
      */
     function longestLine() {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $count=1000;
-        } else {
-            $exec=exec("wc -L " . $this->filename . "| awk '{print $1}'");
-            $exec=explode(" ",$exec);
-            $count = array_shift($exec);
+        if (!$this->length) {
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $count = 1000;
+            } else {
+                $exec    = exec("wc -L " . $this->filename . "| awk '{print $1}'");
+                $exec    = explode(" ", $exec);
+                $longest = array_shift($exec);
+            }
+            if (is_numeric($longest)) {
+                return $this->length = $longest+2;
+            } else {
+                throw new Exception("Cannot get file size");
+            }
         }
-        if (is_numeric($count)) {
-            return $this->count;
+        return $this->length;
+    }
+
+    /**
+     * Return a next row without format
+     * @return array
+     */
+    function fetch() {
+        if (!feof($this->fp)) {
+            $line   = fgets($this->fp, 4096);
+            $return = str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);
+
+            return $return;
         }else{
-            throw new Exception("Cannot get file size");
+            return false;
         }
     }
 
@@ -115,12 +157,40 @@ class FullCsv
      * Fetch rows from file and merge with current data
      * @param int limit
      * @return array
+     * @throws Exception
      */
     function pull($limit=0)
     {
+        if (!$this->isOpen()) { throw new Exception('File is not open');}
+        if (feof($this->fp)) {return;}
         $x=0;
-        while ($this->data[]=fgetcsv($this->fp, null,$this->delimiter, $this->enclosure, $this->escape) && (!$limit || ($limit && $x++<$limit)));
+        while (($data=$this->fetch()) !== FALSE) {
+            $x++;
+            $this->data[]=$this->saveCombine($this->columns,$data);
+            if ($limit && $x>=$limit) {
+                break;
+            }
+        }
         return $this->data;
+    }
+
+    /**
+     * Provide a safe way to combine header and data
+     * @param $headers
+     * @param $data
+     * @return array
+     */
+    function saveCombine($headers,$data) {
+        if (!is_array($data)) {return [];}
+        if (count($headers)<count($data)) {
+            $headers=array_merge($headers,array_keys($data));
+        }elseif (count($headers)>count($data)) {
+            $data =array_merge(
+                array_fill(count($data),count($headers)-count($data),null),$data
+            );
+        }
+        return array_combine($headers,$data);
+
     }
 
     /**
@@ -129,7 +199,18 @@ class FullCsv
      * @return boolean
      */
     function rewind() {
-        return rewind($this->fp);
+        if ($this->firstColumnIsHeader) {
+            if ($return = rewind($this->fp)) {
+                $this->columns = $this->fetch();
+            }
+            return $return;
+        }else{
+            if ($return = rewind($this->fp)) {
+                $this->columns = array_keys($this->fetch());
+                $return = rewind($this->fp);
+            }
+            return $return;
+        }
     }
 
     /**
@@ -143,13 +224,17 @@ class FullCsv
 
     function seek($offset = 0 , $whence = SEEK_SET  ) {
         switch ($whence) {
-            case SEEK_CUR:
             case SEEK_SET:
-                return fseek($this->fp,$offset,$whence)===0 ? true:false;
+                $this->rewind();
+            case SEEK_CUR:
+                $r=0;
+                while (($data[]=$this->fetch()) !== FALSE && ++$r<$offset-1) ;
                 break;
             default:
                 throw new Exception("Whence not valid");
         }
+
+        return true;
 
     }
 
@@ -170,9 +255,10 @@ class FullCsv
         $start=($limit*$page);
         $this->flush();
         $this->rewind();
-        $this->seek($start);
+        if ($start) {$this->seek($start);}
 
-        return $this->fetch($limit);
+        $this->pull($limit);
+        return $this->data;
     }
 
     /**
@@ -191,7 +277,7 @@ class FullCsv
             $count = array_shift($exec);
         }
         if (is_numeric($count)) {
-            return $this->count;
+            return $this->count = $count;
         }else{
             throw new Exception("Cannot get file size");
         }
