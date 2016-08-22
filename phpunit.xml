@@ -1,0 +1,16 @@
+<phpunit bootstrap="./tests/phpunit-bootstrap.php" colors="true" backupGlobals="false" backupStaticAttributes="false">
+
+    <testsuite name="Caherrera/FullCsv Test Suite">
+        <directory >./tests/FullCsvTest</directory>
+    </testsuite>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/FullCsv/</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="testdox-html" target="./tests/log/testdox.html" />
+    </logging>
+</phpunit>
