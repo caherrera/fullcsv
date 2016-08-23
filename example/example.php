@@ -2,12 +2,28 @@
 error_reporting(E_ALL); ini_set('display_errors', 1);
 require_once __DIR__ . '/../vendor/autoload.php'; // Autoload files using Composer autoload
 
+$file = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] :__DIR__ . '/example.csv';
 
-$csv = new FullCsv(__DIR__ . '/example.csv');
+try{
+
+
+$csv = new FullCsv($file);
 $a = "open     ";echo "\n$a\n";var_dump($csv->open());
 $a = "count    ";echo "\n$a\n";var_dump($csv->count());
 $a = "longest  ";echo "\n$a\n";var_dump($csv->longestLine());
-$a = "lenght   ";echo "\n$a\n";var_dump($csv->length);
+$a = "length   ";echo "\n$a\n";var_dump($csv->length);
 $a = "fetchAll ";echo "\n$a\n";var_dump($csv->fetchAll());
 $a = "data     ";echo "\n$a\n";var_dump($csv->data);
 $a = "close    ";echo "\n$a\n";var_dump($csv->close());
+
+
+echo "\n**********************************************";
+echo "\n                    DONE                      ";
+echo "\n**********************************************";
+}catch(Exception $e) {
+    echo "\n**********************************************";
+    echo "\n                    ERRORS                    ";
+    echo "\n**********************************************";
+
+    print_r($e);
+}

@@ -55,7 +55,7 @@ class FullCsvTests extends PHPUnit_Framework_TestCase
         }
         //print_r($rows);
         $this->assertEquals(6,$p);
-        $this->assertCount(12,$rows);
+        $this->assertCount(11,$rows);
         $this->assertEquals($this->f->fetchAll(),$rows);
 
     }

@@ -73,6 +73,12 @@ class FullCsv
     var $pages = 0;
 
     /**
+     * Current Page
+     * @var int
+     */
+    var $currentPage = 0;
+
+    /**
      * Determinate if this CSV must take first row like columns name
      * @var bool
      */
@@ -191,9 +197,7 @@ class FullCsv
      */
     function fetch() {
         if (!feof($this->fp)) {
-            $line   = fgets($this->fp, 4096);
-            $return = str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);
-
+            $return = fgetcsv($this->fp, $this->length, $this->delimiter, $this->enclosure, $this->escape);
             return $return;
         }else{
             return false;
@@ -220,6 +224,7 @@ class FullCsv
                 break;
             }
         }
+        $this->currentPage++;
         return $this->data;
     }
 
@@ -252,14 +257,16 @@ class FullCsv
             if ($return = rewind($this->fp)) {
                 $this->columns = $this->fetch();
             }
-            return $return;
+
         }else{
             if ($return = rewind($this->fp)) {
                 $this->columns = array_keys($this->fetch());
                 $return = rewind($this->fp);
             }
-            return $return;
+
         }
+        $this->setCurrentPage(0);
+        return $return;
     }
 
     /**
@@ -423,5 +430,24 @@ class FullCsv
         $this->columns = $columns;
 
         return $this;
+    }
+
+    /**
+     * @param int $currentPage
+     * @return FullCsv
+     */
+    public function setCurrentPage($currentPage=null)
+    {
+        $this->currentPage = $currentPage;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCurrentPage()
+    {
+        return $this->currentPage;
     }
 }
