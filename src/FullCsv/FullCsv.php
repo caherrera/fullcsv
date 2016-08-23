@@ -23,7 +23,9 @@ class FullCsv
         DEFAULT_DELIMITER = ',',
         DEFAULT_ENCLOSURE = '"',
         DEFAULT_ESCAPE    = "\\",
-        DEFAULT_HEADER    = true;
+        DEFAULT_HEADER    = true,
+        DEFAULT_PAGESIZE  = 1000
+    ;
 
     /**
      * File pointer to a file successfully opened
@@ -35,27 +37,46 @@ class FullCsv
      * The optional delimiter parameter sets the field delimiter (one character only).
      * @var string
      */
-    var $delimiter=',';
+    var $delimiter;
 
     /**
      * The optional enclosure parameter sets the field enclosure character (one character only).
      * @var string
      */
-    var $enclosure='"';
+    var $enclosure;
 
     /**
      * The optional escape parameter sets the escape character (one character only).
      * @var string
      */
-    var $escape="\\";
+    var $escape;
 
+
+    /**
+     * Number of records inside file (include header row)
+     * @var int
+     */
     var $count = 0;
+
+
+    /**
+     * Maximum number of rows rescued when fetch records
+     * @var int
+     */
+    var $pageSize;
+
+
+    /**
+     * Number of pages for read this csv file.
+     * @var int
+     */
+    var $pages = 0;
 
     /**
      * Determinate if this CSV must take first row like columns name
      * @var bool
      */
-    var $firstColumnIsHeader = true;
+    var $firstColumnIsHeader;
 
     /**
      * Name of the columns;
@@ -84,8 +105,11 @@ class FullCsv
      * @param string $enclosure
      * @param string $escape
      * @param bool $firstColumnIsHeader
+     * @param int $limit
+     * @throws Exception
+     * @internal param size $int
      */
-    function __construct($filename, $length=null, $delimiter = self::DEFAULT_DELIMITER, $enclosure = self::DEFAULT_ENCLOSURE,$escape=self::DEFAULT_ESCAPE,$firstColumnIsHeader = self::DEFAULT_HEADER)
+    function __construct($filename, $length=null, $delimiter = self::DEFAULT_DELIMITER, $enclosure = self::DEFAULT_ENCLOSURE,$escape=self::DEFAULT_ESCAPE,$firstColumnIsHeader = self::DEFAULT_HEADER, $limit = self::DEFAULT_PAGESIZE)
     {
 
         if (is_array($length)) { extract(array_merge(
@@ -95,6 +119,7 @@ class FullCsv
             'enclosure'          =>self::DEFAULT_ENCLOSURE,
             'escape'             =>self::DEFAULT_ESCAPE,
             'firstColumnIsHeader'=>self::DEFAULT_HEADER,
+            'limit'              =>self::DEFAULT_PAGESIZE
             ),$length
         )); }
 
@@ -104,6 +129,12 @@ class FullCsv
         $this->enclosure           = $enclosure;
         $this->escape              = $escape;
         $this->firstColumnIsHeader = $firstColumnIsHeader;
+
+        if (!is_file($this->filename))     {throw new Exception('File does not exists');}
+        if (!is_readable($this->filename)) {throw new Exception('File cannot be accessed');}
+        $this->longestLine();
+        $this->count();
+        $this->setPageSize($limit);
 
         $this->open();
     }
@@ -116,10 +147,7 @@ class FullCsv
     function open($mode = 'r')
     {
         if ($this->fp) {return true;}
-        if (!is_file($this->filename))     {throw new Exception('File does not exists');}
-        if (!is_readable($this->filename)) {throw new Exception('File cannot be accessed');}
-        $this->longestLine();
-        $this->count();
+
         if (($this->fp = fopen($this->filename, $mode))!== FALSE) {
             return true;
         }else{
@@ -178,6 +206,7 @@ class FullCsv
      */
     function pull($limit=0)
     {
+        $limit = $limit?:$this->pageSize;
         if (!$this->isOpen()) { throw new Exception('File is not open');}
         if (feof($this->fp)) {return;}
         $x=0;
@@ -307,5 +336,87 @@ class FullCsv
     function close()
     {
         return fclose($this->fp);
+    }
+
+    /**
+     * @return string
+     */
+    public function getDelimiter()
+    {
+        return $this->delimiter;
+    }
+
+    /**
+     * @param string $delimiter
+     * @return FullCsv
+     */
+    public function setDelimiter($delimiter)
+    {
+        $this->delimiter = $delimiter;
+
+        return $this;
+    }
+
+    /**
+     * @param string $enclosure
+     * @return FullCsv
+     */
+    public function setEnclosure($enclosure)
+    {
+        $this->enclosure = $enclosure;
+
+        return $this;
+    }
+
+    /**
+     * @param string $escape
+     * @return FullCsv
+     */
+    public function setEscape($escape)
+    {
+        $this->escape = $escape;
+
+        return $this;
+    }
+
+    /**
+     * @param boolean $firstColumnIsHeader
+     * @return FullCsv
+     */
+    public function setFirstColumnIsHeader($firstColumnIsHeader)
+    {
+        $this->firstColumnIsHeader = $firstColumnIsHeader;
+
+        return $this;
+    }
+
+    /**
+     * @param int $pageSize
+     * @return FullCsv
+     */
+    public function setPageSize($pageSize)
+    {
+        $this->pageSize = $pageSize;
+        $this->pages =($this->pageSize)? ceil($this->count / $this->pageSize):1;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
+    /**
+     * @param array $columns
+     * @return FullCsv
+     */
+    public function setColumns(array $columns = array())
+    {
+        $this->columns = $columns;
+
+        return $this;
     }
 }

@@ -8,8 +8,8 @@
 
 namespace FullCsvTest;
 
-use PHPUnit_Framework_TestCase;
 use FullCsv;
+use PHPUnit_Framework_TestCase;
 
 class FullCsvTests extends PHPUnit_Framework_TestCase
 {
@@ -43,6 +43,21 @@ class FullCsvTests extends PHPUnit_Framework_TestCase
     function testLongestLine()
     {
         $this->assertEquals(37,$this->f->longestLine());
+    }
+
+    function testPageSize() {
+        $this->f->rewind();
+        $this->f->setPageSize(4);
+        $p=0;$rows=[];
+        while($data=$this->f->pull()) {
+            $p++;
+            $rows+=$data;
+
+        }
+        //print_r($rows);
+        $this->assertEquals(3,$p);
+        $this->assertCount(12,$rows);
+
     }
 
     function testPull()
