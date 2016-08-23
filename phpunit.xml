@@ -1,7 +1,7 @@
 <phpunit bootstrap="./tests/phpunit-bootstrap.php" colors="true" backupGlobals="false" backupStaticAttributes="false">
 
-    <testsuite name="Caherrera/FullCsv Test Suite">
-        <directory >./tests/FullCsvTest</directory>
+    <testsuite name="caherrera/FullCsv Test Suite">
+        <directory suffix=".php">./tests/FullCsv</directory>
     </testsuite>
 
     <filter>

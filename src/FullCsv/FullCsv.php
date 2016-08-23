@@ -137,6 +137,8 @@ class FullCsv
         $this->setPageSize($limit);
 
         $this->open();
+        $this->rewind();
+
     }
 
     /**
@@ -323,7 +325,7 @@ class FullCsv
             $count = array_shift($exec);
         }
         if (is_numeric($count)) {
-            return $this->count = $count;
+            return $this->count = $count - ($this->firstColumnIsHeader?1:0);
         }else{
             throw new Exception("Cannot get file size");
         }

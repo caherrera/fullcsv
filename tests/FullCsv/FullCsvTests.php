@@ -6,7 +6,7 @@
  * Time: 3:39 PM
  */
 
-namespace FullCsvTest;
+namespace Test;
 
 use FullCsv;
 use PHPUnit_Framework_TestCase;
@@ -87,7 +87,7 @@ class FullCsvTests extends PHPUnit_Framework_TestCase
 
     function testCount()
     {
-        $this->assertEquals(12,$this->f->count());
+        $this->assertEquals(11,$this->f->count());
     }
 
     function testFlush()
