@@ -46,17 +46,17 @@ class FullCsvTests extends PHPUnit_Framework_TestCase
     }
 
     function testPageSize() {
-        $this->f->rewind();
-        $this->f->setPageSize(4);
+
+        $this->f->setPageSize(2);
         $p=0;$rows=[];
         while($data=$this->f->pull()) {
             $p++;
-            $rows+=$data;
-
+            $rows=array_merge($rows,$data);
         }
         //print_r($rows);
-        $this->assertEquals(3,$p);
+        $this->assertEquals(6,$p);
         $this->assertCount(12,$rows);
+        $this->assertEquals($this->f->fetchAll(),$rows);
 
     }
 

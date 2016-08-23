@@ -206,9 +206,10 @@ class FullCsv
      * @return array
      * @throws Exception
      */
-    function pull($limit=0)
+    function pull($limit=null)
     {
-        $limit = $limit?:$this->pageSize;
+        $this->flush();
+        $limit = is_numeric($limit)?$limit:$this->pageSize;
         if (!$this->isOpen()) { throw new Exception('File is not open');}
         if (feof($this->fp)) {return;}
         $x=0;
@@ -273,13 +274,17 @@ class FullCsv
     function seek($offset = 0 , $whence = SEEK_SET  ) {
         switch ($whence) {
             case SEEK_SET:
-                $this->rewind();
+                $this->rewind($this->fp);
             case SEEK_CUR:
-                $r=0;
-                while (($data[]=$this->fetch()) !== FALSE && ++$r<$offset-1) ;
                 break;
             default:
                 throw new Exception("Whence not valid");
+        }
+        $r=0;
+        if ($offset) {
+            while (($data[] = $this->fetch()) !== false && ++$r < $offset - 1) {
+                ;
+            }
         }
 
         return true;
@@ -301,9 +306,7 @@ class FullCsv
      */
     function fetchAll($limit=0,$page = 0) {
         $start=($limit*$page);
-        $this->flush();
-        $this->rewind();
-        if ($start) {$this->seek($start);}
+        $this->seek($start);
 
         $this->pull($limit);
         return $this->data;
