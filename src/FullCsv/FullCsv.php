@@ -104,12 +104,12 @@ class FullCsv
      * @param string $delimiter
      * @param string $enclosure
      * @param string $escape
-     * @param bool $firstColumnIsHeader
+     * @param bool $header
      * @param int $limit
      * @throws Exception
      * @internal param size $int
      */
-    function __construct($filename, $length=null, $delimiter = self::DEFAULT_DELIMITER, $enclosure = self::DEFAULT_ENCLOSURE,$escape=self::DEFAULT_ESCAPE,$firstColumnIsHeader = self::DEFAULT_HEADER, $limit = self::DEFAULT_PAGESIZE)
+    function __construct($filename, $length=null, $delimiter = self::DEFAULT_DELIMITER, $enclosure = self::DEFAULT_ENCLOSURE,$escape=self::DEFAULT_ESCAPE,$header = self::DEFAULT_HEADER, $limit = self::DEFAULT_PAGESIZE)
     {
 
         if (is_array($length)) { extract(array_merge(
@@ -118,7 +118,7 @@ class FullCsv
             'delimiter'          =>self::DEFAULT_DELIMITER,
             'enclosure'          =>self::DEFAULT_ENCLOSURE,
             'escape'             =>self::DEFAULT_ESCAPE,
-            'firstColumnIsHeader'=>self::DEFAULT_HEADER,
+            'header'             =>self::DEFAULT_HEADER,
             'limit'              =>self::DEFAULT_PAGESIZE
             ),$length
         )); }
@@ -128,7 +128,7 @@ class FullCsv
         $this->delimiter           = $delimiter;
         $this->enclosure           = $enclosure;
         $this->escape              = $escape;
-        $this->firstColumnIsHeader = $firstColumnIsHeader;
+        $this->firstColumnIsHeader = $header;
 
         if (!is_file($this->filename))     {throw new Exception('File does not exists');}
         if (!is_readable($this->filename)) {throw new Exception('File cannot be accessed');}
