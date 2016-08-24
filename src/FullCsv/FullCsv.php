@@ -178,7 +178,7 @@ class FullCsv
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
                 $count = 1000;
             } else {
-                $exec    = exec("wc -L " . $this->filename . "| awk '{print $1}'");
+                $exec    = exec("wc -L \"" . $this->filename . "\"| awk '{print $1}'");
                 $exec    = explode(" ", $exec);
                 $longest = array_shift($exec);
             }
@@ -326,11 +326,12 @@ class FullCsv
      */
     function count() {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $exec=exec("find /v /c \"\" " . $this->filename);
+            $exec=exec("find /v /c \"\" \"" . $this->filename . "\"");
             $exec=explode(" ",$exec);
             $count = array_pop($exec);
         } else {
-            $exec=exec("wc -l " . $this->filename . "| awk '{print $1}'");
+            $c="wc -l \"" . $this->filename . "\"| awk '{print $1}'";
+            $exec=exec($c);
             $exec=explode(" ",$exec);
             $count = array_shift($exec);
         }
