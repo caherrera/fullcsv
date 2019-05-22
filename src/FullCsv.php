@@ -12,12 +12,14 @@ namespace FullCsv;
  * @author        Carlos Herrera
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
+ * @deprecated
  * @link          http://us2.php.net/manual/en/function.fopen.php
  * @link          http://us2.php.net/manual/en/function.fgetcsv.php
  * @link          http://us2.php.net/manual/en/function.fclose.php
  */
 
 use Exception;
+
 class FullCsv {
 
 	CONST
