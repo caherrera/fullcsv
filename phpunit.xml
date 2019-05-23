@@ -1,12 +1,20 @@
-<phpunit bootstrap="./tests/phpunit-bootstrap.php" colors="true" backupGlobals="false" backupStaticAttributes="false">
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false">
 
     <testsuite name="caherrera/FullCsv Test Suite">
-        <directory suffix=".php">./tests/FullCsv</directory>
+        <directory suffix="Test.php">./tests/FullCsv</directory>
     </testsuite>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">src/FullCsv/</directory>
+            <directory suffix=".php">src/</directory>
         </whitelist>
     </filter>
 
