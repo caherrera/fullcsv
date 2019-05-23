@@ -9,9 +9,9 @@
 namespace Test;
 
 use FullCsv\CsvReader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FullCsvNoHeaderTest extends PHPUnit_Framework_TestCase {
+class FullCsvNoHeaderTest extends TestCase {
 	/**
 	 * FullCSV instance
 	 *
