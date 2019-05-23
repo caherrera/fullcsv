@@ -98,4 +98,8 @@ class CsvWriterTest extends TestCase {
 		$this->new      = new CsvWriter( $this->filename );
 
 	}
+
+	protected function tearDown() {
+		unlink( $this->new->filename );
+	}
 }
